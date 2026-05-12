@@ -246,9 +246,34 @@
     .log-name { font-family: 'Fredoka', sans-serif !important; font-size: 0.9rem !important; font-weight: 650 !important; color: #ffffff !important; paint-order: stroke fill !important; line-height: 1.2; max-width: 100% !important; width: auto !important; white-space: normal !important; margin-right: 0 !important; }
     .log-right-group { flex: 1; display: flex; flex-direction: column; align-items: flex-end !important; gap: 0px; min-width: auto !important; flex: 0 0 auto !important; width: auto !important; text-align: right !important; line-height: 1; }
     .log-time { font-family: 'Fredoka', sans-serif !important; font-size: 0.9rem !important; font-weight: 650 !important; paint-order: stroke fill !important; -webkit-text-stroke: 2.5px #000000; }
-    .log-details { display: flex !important; flex-direction: column-reverse !important; align-items: flex-end !important; justify-content: center !important; gap: 2px; margin-top: 0px; }
-    .ld-part.time, .ld-part.pot { order: 0 !important; }
-    .ld-part { font-size: 0.9rem !important; font-weight: 650 !important; font-family: 'Fredoka', sans-serif !important; justify-content: flex-end !important; width: 100% !important; }
+    .log-details { 
+        display: flex !important; 
+        flex-direction: row !important; 
+        flex-wrap: wrap !important; 
+        justify-content: flex-end !important; 
+        gap: 2px 8px !important; 
+        margin-top: 2px !important; 
+    }
+
+    .ld-part.time { 
+        order: 1 !important; 
+        width: 100% !important; 
+        justify-content: flex-end !important; 
+    }
+
+    .ld-part.gem { 
+        order: 2 !important; 
+        width: auto !important;
+    }
+
+    .ld-part.pot { 
+        order: 3 !important; 
+        width: auto !important; 
+    }
+    .ld-part.gem .ld-icon {
+        width: 14px !important;  
+        height: 14px !important; 
+    }
     .ld-icon { width: 18px !important; height: 18px !important; }
 
     /* --- J. STATS HEADER FIXES --- */
