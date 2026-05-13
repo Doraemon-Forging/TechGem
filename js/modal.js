@@ -1207,18 +1207,83 @@ function openForgeScheduleModal() {
         return `${dateStr}, ${timeStr}`;
     };
 
+    let globalIndex = 0;
+    window.currentForgeSchedule.forEach(step => {
+        step.globalIndex = globalIndex++;
+
+        let memoryKey = step.label; 
+        if (typeof step.gems === 'undefined') {
+            step.gems = window.forgeGemsMemory[memoryKey] || 0;
+        }
+        if (typeof step.originalFinish === 'undefined') step.originalFinish = step.finish;
+    });
+
+    window.promptGlobalForgeGems = function() {
+        let val = prompt("Enter Gem amount to use for ALL levels (0 to clear):");
+        if (val === null) return;
+        let gems = parseInt(val);
+        if (isNaN(gems) || gems < 0) gems = 0;
+        
+        window.currentForgeSchedule.forEach(step => {
+            if (!step.isAscension) {
+                step.gems = gems;
+                window.forgeGemsMemory[step.label] = gems; // Save to global memory
+            }
+        });
+        
+        if (typeof saveToLocalStorage === 'function') saveToLocalStorage();
+        window.recalcAndRenderForgeScheduleGems();
+    };
+
+    window.promptRowForgeGems = function(idx) {
+        let currentGems = window.currentForgeSchedule[idx].gems || 0;
+        let val = prompt(`Enter Gem amount for this level:`, currentGems);
+        if (val === null) return;
+        let gems = parseInt(val);
+        if (isNaN(gems) || gems < 0) gems = 0;
+        
+        window.currentForgeSchedule[idx].gems = gems;
+        window.forgeGemsMemory[window.currentForgeSchedule[idx].label] = gems; // Save to global memory
+
+        if (typeof saveToLocalStorage === 'function') saveToLocalStorage();
+        window.recalcAndRenderForgeScheduleGems();
+    };
+
+    window.recalcAndRenderForgeScheduleGems = function() {
+        let cumulativeSavedMs = 0;
+        
+        window.currentForgeSchedule.forEach(step => {
+            if (!step.isAscension) {
+                let savedMs = 0;
+                if (step.gems && step.gems > 0) {
+                    savedMs = (step.gems + 0.5) * 7.24643 * 60000;
+                }
+                cumulativeSavedMs += savedMs;
+            }
+
+            let newFinishMs = step.originalFinish - cumulativeSavedMs;
+
+            let dateEl = document.getElementById(`fs-date-${step.globalIndex}`);
+            let gemEl = document.getElementById(`fs-gem-${step.globalIndex}`);
+
+            if (dateEl) {
+                dateEl.innerHTML = formatScheduleDT(newFinishMs);
+            }
+            if (gemEl && !step.isAscension) {
+                gemEl.innerHTML = step.gems > 0 ? step.gems : '-';
+                gemEl.style.color = step.gems > 0 ? '#2980b9' : '#95a5a6';
+                gemEl.style.fontWeight = step.gems > 0 ? 'bold' : 'normal';
+            }
+        });
+    };
+
     const groupedSchedule = {};
-    
     window.currentForgeSchedule.forEach(step => {
         let ascMatch = step.label.match(/Asc (\d+)/);
         let asc = 0;
-        if (ascMatch) {
-            asc = parseInt(ascMatch[1]);
-        }
+        if (ascMatch) asc = parseInt(ascMatch[1]);
         
-        if (!groupedSchedule[asc]) {
-            groupedSchedule[asc] = [];
-        }
+        if (!groupedSchedule[asc]) groupedSchedule[asc] = [];
         groupedSchedule[asc].push(step);
     });
 
@@ -1259,22 +1324,30 @@ function openForgeScheduleModal() {
             }
 
             let textStyle = `color: #000 !important; font-family: 'Fredoka', sans-serif; font-weight: 600;`;
+            let gemStyle = step.gems > 0 ? 'color: #2980b9; font-weight: bold;' : 'color: #95a5a6;';
+            let gemDisplay = step.gems > 0 ? step.gems : '-';
 
-            let leftCol = `<div style="${textStyle} display: block; width: 100%; box-sizing: border-box; text-align: center;">${displayLabel}</div>`;
-            let rightCol = `<div style="${textStyle} display: block; width: 100%; box-sizing: border-box; text-align: center;">${formatScheduleDT(step.finish)}</div>`;
+            let leftCol = `<div style="${textStyle} display: block; width: 100%; box-sizing: border-box; text-align: center; white-space: nowrap;">${displayLabel}</div>`;
+
+            let midCol = `<div id="fs-gem-${step.globalIndex}" style="cursor: pointer; ${textStyle} ${gemStyle} display: block; width: 100%; text-align: center;" onclick="promptRowForgeGems(${step.globalIndex})" title="Click to edit gems">${gemDisplay}</div>`;
+            let rightCol = `<div id="fs-date-${step.globalIndex}" style="${textStyle} display: block; width: 100%; box-sizing: border-box; text-align: center; font-size: 0.9em;">${formatScheduleDT(step.originalFinish)}</div>`;
 
             rowsHtml += `<tr>
-                <td style="width: 45%;">${leftCol}</td>
-                <td style="width: 55%;">${rightCol}</td>
+                <td style="width: 35%; padding: 8px 2px;">${leftCol}</td>
+                <td style="width: 12%; padding: 8px 2px;">${midCol}</td>
+                <td style="width: 53%; padding: 8px 2px;">${rightCol}</td>
             </tr>`;
         });
 
         let tableHtml = `
-        <table class="clean-table" style="${showTabs ? 'margin-top: 10px;' : 'margin-top: 5px;'} width: 100%;">
+        <table class="clean-table" style="${showTabs ? 'margin-top: 10px;' : 'margin-top: 5px;'} width: 100%; table-layout: fixed;">
             <thead>
                 <tr>
-                    <th style="text-align: center; width: 45%;">Level</th>
-                    <th style="text-align: center; width: 55%;">Finish Date</th>
+                    <th style="text-align: center; width: 35%; padding: 8px 2px;">Level</th>
+                    <th style="text-align: center; width: 12%; padding: 8px 2px; cursor: pointer;" onclick="promptGlobalForgeGems()" title="Click to set gems for ALL levels">
+                        <img src="icons/Gem.png" style="height: 1.2em; vertical-align: middle; filter: drop-shadow(0px 1px 1px rgba(0,0,0,0.3));">
+                    </th>
+                    <th style="text-align: center; width: 53%; padding: 8px 2px;">Finish Date</th>
                 </tr>
             </thead>
             <tbody>
@@ -1290,6 +1363,8 @@ function openForgeScheduleModal() {
     }
 
     renderMasterModal('forgeSchedule', tabsHtml + contentHtml);
+    
+    window.recalcAndRenderForgeScheduleGems();
 }
 
 // --- FORGE PROBABILITY MODAL ---

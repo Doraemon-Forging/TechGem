@@ -1819,14 +1819,14 @@ const HTML_HELP = `
                         Here’s the trick: when there are 10 minutes and 52 seconds left on the timer, the cost drops to just 1 gem. This means by spending your gems one at a time right at the end of a timer, you get 50% more value from every single gem. This trick works for both tech and forge upgrades. 
                     </div>
                     <div class="help-body-text" style="margin-bottom: 12px;">
-                        Since this trick is niche and it makes the UI a bit cluttered, I didn't add this feature to my Tech Planner. To use this feature, just press the Gem button in the "PLAN" mode and enter the gem amount. After that just plan your tech upgrades normally. It automatically reduces the duration by the max amount of time the gem reduces. You can choose not to use gem on the items by changing the gem value to 0. In the Schedule tab, you can see the techs that you decided to use gems on.
+                        Since this trick is niche and it makes the UI a bit cluttered, I didn't add this feature to my Tech Planner. To use this feature, just press the Gem button in the "PLAN" mode and enter the gem amount. After that just plan your tech upgrades normally. It automatically reduces the duration by the max amount of time the gem reduces. You can choose not to use gem on the items by changing the gem value to 0. In the Schedule tab, you can see the techs that you decided to use gems on. You can click the gem icon in the Schedule tab to change the value of the gem for each tech.
                     </div>
                     <div class="help-body-text">
                         To see how much time you will reduce for X amount of gem you use, you can enter it here:
                     </div>
                     
                     <div class="gem-calc-container">
-                        <img src="icons/Gem.png" style="width:24px; height:24px; filter: drop-shadow(0 1px 0 rgba(0,0,0,0.1));">
+                        <img src="icons/Gem.png" style="width:16px; height:16px; filter: drop-shadow(0 1px 0 rgba(0,0,0,0.1));">
                         <input type="number" class="gem-calc-input" placeholder="0" min="0" oninput="
                             let g = parseInt(this.value);
                             let res = this.parentElement.querySelector('.gem-calc-result');

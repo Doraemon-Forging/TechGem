@@ -357,6 +357,11 @@ span.stat-arrow {
     color: #fa8c71 !important; 
 }
 
+.ld-part.gem .ld-icon {
+    width: 16px !important;  
+    height: 16px !important; 
+}
+
 .gem-toggle-container {
     display: flex;
     z-index: 500;
